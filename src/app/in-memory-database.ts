@@ -1,5 +1,6 @@
 import { InMemoryDbService } from "angular-in-memory-web-api";
-import { Category } from "./pages/categories/shared/category-model";
+
+import { Category } from "./pages/categories/shared/category.model";
 
 export class InMemoryDataBase implements InMemoryDbService{
     createDb(){
@@ -11,6 +12,8 @@ export class InMemoryDataBase implements InMemoryDbService{
             {id: 5, name: "Freelas", description: "Trabalhos como Freelancer"}
         ];
         
-        return categories;
+        //é objeto, então precisa das chaves no return
+        //return categories; //sem chaves ele não funciona
+        return {categories};
     }
 }
