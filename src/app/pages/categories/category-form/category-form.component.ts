@@ -6,7 +6,7 @@ import { Category } from "../shared/category.model";
 import { CategoryService } from "../shared/category.service";
 
 import { switchMap } from "rxjs/operators";
-import { toastr } from "toastr";
+import toastr from "toastr";
 
 @Component({
   selector: 'app-category-form',
