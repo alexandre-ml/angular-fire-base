@@ -1,6 +1,8 @@
 import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { NgModule } from '@angular/core';
 import { HttpClientModule } from "@angular/common/http";
+
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -14,8 +16,9 @@ import { InMemoryDataBase } from "./in-memory-database";
   ],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     AppRoutingModule,
-    HttpClientModule,
+    HttpClientModule,    
     //utilizado apenas para requisições internas, em beckend real, remover import
     HttpClientInMemoryWebApiModule.forRoot(InMemoryDataBase)
   ],
