@@ -61,8 +61,6 @@ export abstract class BaseResourceService<T extends BaseResourceModel>{
 
   //metodos protegidos compartilhados pela herança
   protected jsonDataToResources(jsonData: any[]):T[]{
-    console.log(this);
-
     const resources: T[] = [];
     jsonData.forEach(element => resources.push(this.jsonDataToResourceFn(element)));
     return resources;
