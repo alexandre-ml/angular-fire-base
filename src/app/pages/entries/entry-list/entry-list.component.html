@@ -28,7 +28,7 @@
     </tr>
   </thead>
   <tbody>
-    <tr *ngFor="let entry of entries">
+    <tr *ngFor="let entry of resources">
       <td>
         <strong>{{ entry.name }}</strong
         ><br />
@@ -55,7 +55,10 @@
           class="btn btn-outline-info sm mr-2"
           >Editar</a
         >
-        <button (click)="deleteEntry(entry)" class="btn btn-outline-danger sm">
+        <button
+          (click)="deleteResource(entry)"
+          class="btn btn-outline-danger sm"
+        >
           Excluir
         </button>
       </td>
