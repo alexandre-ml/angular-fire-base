@@ -5,15 +5,22 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { HttpClientModule } from "@angular/common/http";
 import { HttpClientInMemoryWebApiModule } from "angular-in-memory-web-api";
+import { RouterModule } from "@angular/router";
+
 import { InMemoryDataBase } from "../in-memory-database";
+import { NavbarComponent } from './component/navbar/navbar.component';
 
 @NgModule({
-  declarations: [],
+  declarations: [
+    NavbarComponent
+  ],
   imports: [
     CommonModule,    
     BrowserModule,
     BrowserAnimationsModule,
-    HttpClientModule,   
+    HttpClientModule,
+    RouterModule,  
+    
     //utilizado apenas para requisições internas, em beckend real, remover import
     HttpClientInMemoryWebApiModule.forRoot(InMemoryDataBase)
   ],
@@ -21,7 +28,11 @@ import { InMemoryDataBase } from "../in-memory-database";
     //modulos compartilhados por todos
     BrowserModule,
     BrowserAnimationsModule,
-    HttpClientModule
+    HttpClientModule,
+    RouterModule,
+
+    //componentes compartilhados
+    NavbarComponent
   ]
 })
 export class CoreModule { }
