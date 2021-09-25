@@ -3,60 +3,45 @@ import { BaseResourceModel } from "../models/base-resource.model";
 import { Injector } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 
-import { Observable, throwError } from "rxjs";
-import { map, catchError, flatMap } from "rxjs/operators";
+import { Observable, throwError, from } from "rxjs";
+
+import { AngularFirestore, AngularFirestoreCollection } from "@angular/fire/compat/firestore";
 
 export abstract class BaseResourceService<T extends BaseResourceModel>{
 
-    protected http: HttpClient;
+  protected afs: AngularFirestore;
 
-    constructor(
-        protected apiPath: string,
-        protected injector: Injector,
-        protected jsonDataToResourceFn: (jsonData: any) => T
-    ){
-      this.http = injector.get(HttpClient);
-    }
+  protected resourceCollection: AngularFirestoreCollection<T>;
 
-    getAll(): Observable<T[]>{
-      return this.http.get(this.apiPath).pipe(
-        map(this.jsonDataToResources.bind(this)),
-        catchError(this.handleError)
-      );
+  constructor(
+      protected injector: Injector,
+      protected jsonDataToResourceFn: (jsonData: any) => T,
+      
+      protected collection?: string
+  ){
+    this.afs = injector.get(AngularFirestore);
+    this.resourceCollection = this.afs.collection(collection);
   }
 
-  getById(id: number): Observable<T>{
-    const url = `${this.apiPath}/${id}`;
-      return this.http.get(url).pipe(
-        map(this.jsonDataToResource.bind(this)),
-        catchError(this.handleError)
-    );
+  getAllFb(): Observable<T[]>{
+    return this.resourceCollection.valueChanges();
   }
 
-  create(resource: T): Observable<T>{
-    return this.http.post(this.apiPath, resource).pipe(
-      map(this.jsonDataToResource.bind(this)),
-      catchError(this.handleError)
-    );
+  getByIdFb(id: string): Observable<T>{
+    return this.resourceCollection.doc(id).valueChanges();
   }
 
-  update(resource: T): Observable<T>{
-    const url = `${this.apiPath}/${resource.id}`;
-
-    return this.http.put(url, resource).pipe(
-      //map(this.jsonDataToResource) servidor real
-      map(() => resource), //in-memory não retorna nada após o put (update)
-      catchError(this.handleError)
-    );
+  createFb(resource: T) {
+    let LocalId = this.afs.createId();
+    return this.resourceCollection.doc(LocalId).set({...resource, id: LocalId})    
   }
 
-  delete (id: number): Observable<any>{
-    const url = `${this.apiPath}/${id}`;
-    
-    return this.http.delete(url).pipe(
-        map(() => null),
-        catchError(this.handleError)
-    );
+  updateFb(resource: T){
+    return this.resourceCollection.doc(resource.id).set({...resource, id: resource.id});
+  }
+
+  deleteFb(id: string){
+    return this.resourceCollection.doc(id).delete();
   }
 
   //metodos protegidos compartilhados pela herança

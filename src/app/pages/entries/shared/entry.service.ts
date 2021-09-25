@@ -1,7 +1,7 @@
 import { Injectable, Injector } from '@angular/core';
 
 import { Observable } from 'rxjs';
-import { catchError, flatMap, map } from 'rxjs/operators';
+import { map } from 'rxjs/operators';
 
 import { BaseResourceService } from "../../../shared/services/base-resource.service";
 import { Entry } from "./entry.model";
@@ -12,36 +12,42 @@ import * as moment from 'moment';
 @Injectable({
   providedIn: 'root'
 })
+
 export class EntryService extends BaseResourceService<Entry> {
 
   constructor(injector: Injector, private categoryService: CategoryService) {
-    super("api/entries", injector, Entry.fromJson);
+    super(injector, Entry.fromJson, 'entries');
   }
   
   create(entry: Entry): Observable<Entry>{
-    return this.setCategoryAndSendToServer(entry, super.create.bind(this));
+    return this.setCategoryAndSendToServer(entry, super.createFb.bind(this));
   }
 
   update(entry: Entry): Observable<Entry>{
-    return this.setCategoryAndSendToServer(entry, super.update.bind(this));
+    return this.setCategoryAndSendToServer(entry, super.updateFb.bind(this));
   }
   
   getByMonthAndYear(month: number, year: number): Observable<Entry[]> {
-    return this.getAll().pipe(
+    return this.getAllFb().pipe(
       map(entries => this.filterByMonthAndYear(entries, month, year))
     )
   }
 
-  private setCategoryAndSendToServer(entry: Entry, sendFn: any): Observable<Entry>{
-    //necessario amarrar a categaria pq o banco e em memoria
-    return this.categoryService.getById(entry.categoryId).pipe(
-      flatMap( category => {
-        entry.category = category;
+  getNameCategory(id: string): string {
+    let ret: string;
+/*
+    let teste = this.categoryService.getByIdFb(id).subscribe(
+      (c) => {ret = c.name}
+    )
+    teste.unsubscribe();
+*/
+    ret = id + 'veio da classe';
+    
+    return ret;     
+  }
 
-        return sendFn(entry);
-    }),
-    catchError(this.handleError)
-    ); 
+  private setCategoryAndSendToServer(entry: Entry, sendFn: any): Observable<Entry>{
+    return sendFn(entry); 
   }  
 
   private filterByMonthAndYear(entries: Entry[], month: number, year: number) {

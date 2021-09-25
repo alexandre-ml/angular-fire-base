@@ -41,7 +41,7 @@ export class ReportsComponent implements OnInit {
   constructor(private entryService: EntryService, private categoryService: CategoryService) { }
 
   ngOnInit() {
-    this.categoryService.getAll()
+    this.categoryService.getAllFb()
       .subscribe(categories => this.categories = categories);
   }
 

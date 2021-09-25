@@ -7,6 +7,7 @@ import { Entry } from "../shared/entry.model";
 import { EntryService } from "../shared/entry.service";
 import { Category } from "../../categories/shared/category.model";
 import { CategoryService } from "../../categories/shared/category.service";
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-entry-form',
@@ -15,7 +16,7 @@ import { CategoryService } from "../../categories/shared/category.service";
 })
 export class EntryFormComponent extends BaseResourceFormComponent<Entry> implements OnInit {
 
-  categories: Array<Category>
+  categories$: Observable<Category[]>
 
   imaskConfig = {
     mask: Number,
@@ -78,9 +79,7 @@ export class EntryFormComponent extends BaseResourceFormComponent<Entry> impleme
 
   //metodos privados da clase 
   protected loadCategories() {
-    this.categoryService.getAll().subscribe(
-      categories => this.categories = categories
-    );
+    this.categories$ = this.categoryService.getAllFb();
   }
 
   protected setTitleNew(){

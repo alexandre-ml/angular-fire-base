@@ -17,7 +17,7 @@
     </tr>
   </thead>
   <tbody>
-    <tr *ngFor="let entry of resources">
+    <tr *ngFor="let entry of resources$ | async">
       <td>
         <strong>{{ entry.name }}</strong
         ><br />
@@ -26,7 +26,8 @@
         <small *ngIf="entry.description">{{ entry.description }}</small>
       </td>
       <td>
-        {{ entry.category.name }}
+        {{ entry.categoryId }} -
+        {{ entryService.getNameCategory(entry.categoryId) }}
       </td>
       <td class="text-right">
         <strong

@@ -26,11 +26,12 @@ export abstract class BaseResourceFormComponent<T extends BaseResourceModel> imp
       public resource: T,
       protected resourceService: BaseResourceService<T>,
       protected jsonDataToResourceFn: (jsonData: any) => T
-      ) {
-          this.route = injector.get(ActivatedRoute);
-          this.router = injector.get(Router);
-          this.formBuilder = injector.get(FormBuilder);
-   }
+      ) 
+    {
+      this.route = injector.get(ActivatedRoute);
+      this.router = injector.get(Router);
+      this.formBuilder = injector.get(FormBuilder);
+    }
 
   ngOnInit() {
     this.setCurrentAction();
@@ -58,7 +59,7 @@ export abstract class BaseResourceFormComponent<T extends BaseResourceModel> imp
   protected loadResource() {
     if(this.currentAction == 'edit'){
       this.route.paramMap.pipe(
-        switchMap(params => this.resourceService.getById(+params.get('id')))
+        switchMap(params => this.resourceService.getByIdFb(params.get('id')))
       )
       .subscribe(
         (resource) => {
@@ -68,6 +69,7 @@ export abstract class BaseResourceFormComponent<T extends BaseResourceModel> imp
         (error) => alert('Ocorreu um erro no servidor, tente mais tarde!')
       )
     }
+    
   }
   
   protected setPageTitle() {
@@ -86,20 +88,26 @@ export abstract class BaseResourceFormComponent<T extends BaseResourceModel> imp
   protected createResource() {
     const resource: T = this.jsonDataToResourceFn(this.resourceForm.value);
 
-    this.resourceService.create(resource)
-    .subscribe(
-      resource => this.actionsForSuccess(resource),
-      error => this.actionsForError(error)
+    this.resourceService.createFb(resource)
+    .then(
+      (r) => {
+        this.actionsForSuccess(resource)
+      }      
+    )
+    .catch(
+      (error) => this.actionsForError(error)
     )
   }
   
   protected updateResource() {
     const resource: T = this.jsonDataToResourceFn(this.resourceForm.value);
 
-    this.resourceService.update(resource)
-    .subscribe(
-      resource => this.actionsForSuccess(resource),
-      error => this.actionsForError(error)
+    this.resourceService.updateFb(resource)
+    .then(
+      () => {this.actionsForSuccess(resource)}      
+    )
+    .catch(
+      (error) => this.actionsForError(error)
     )
   }  
 
@@ -108,10 +116,13 @@ export abstract class BaseResourceFormComponent<T extends BaseResourceModel> imp
 
     const url = this.route.snapshot.parent.url[0].path;
 
+    //console.log(`${url}/${resource.id}/edit`);
+
     //redireciona para a pagina de ediçao para garantir um novo carregamento e limpeza das variaveis
-    this.router.navigateByUrl(url, {skipLocationChange: true}).then(
-      () => this.router.navigate([url, resource.id, 'edit'])
-    )
+    //this.router.navigateByUrl(url, {skipLocationChange: true}).then(
+    //  () => this.router.navigate([url, resource.id, 'edit'])
+    //)
+    this.router.navigateByUrl(`${url}`, {skipLocationChange: true});
   }
 
   protected actionsForError(error: any): void {
