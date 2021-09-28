@@ -4,6 +4,8 @@ import { Observable } from 'rxjs';
 import { BaseResourceModel } from "../../models/base-resource.model";
 import { BaseResourceService } from "../../services/base-resource.service";
 
+import toastr from "toastr";
+
 @Directive()
 export abstract class BaseResourceListComponent<T extends BaseResourceModel> implements OnInit {
 
@@ -22,9 +24,9 @@ export abstract class BaseResourceListComponent<T extends BaseResourceModel> imp
     if(mustDelete)
       this.resourceService.deleteFb(resource.id).then(
         //sucesso
-        () => alert('Registro excluído'),
+        () => toastr.success("Excluído com sucesso"),
         //erro
-        () => alert('Erro ao tentar excluir!')
+        () => toastr.error('Ocorreu um erro a realizar a exclusão!')
       );
   }
 }

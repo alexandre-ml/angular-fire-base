@@ -1,11 +1,11 @@
 import { BaseResourceModel } from "../models/base-resource.model";
 
 import { Injector } from "@angular/core";
-import { HttpClient } from "@angular/common/http";
 
-import { Observable, throwError, from } from "rxjs";
+import { from, Observable, throwError } from "rxjs";
 
 import { AngularFirestore, AngularFirestoreCollection } from "@angular/fire/compat/firestore";
+import { catchError, map, switchMap, tap } from "rxjs/operators";
 
 export abstract class BaseResourceService<T extends BaseResourceModel>{
 
@@ -31,9 +31,16 @@ export abstract class BaseResourceService<T extends BaseResourceModel>{
     return this.resourceCollection.doc(id).valueChanges();
   }
 
-  createFb(resource: T) {
-    let LocalId = this.afs.createId();
-    return this.resourceCollection.doc(LocalId).set({...resource, id: LocalId})    
+  createFb(resource: T, localId?: string): Observable<T> {
+    let id: string;
+
+    id = localId ? localId : this.afs.createId();
+
+    return from(this.resourceCollection.doc<T>(id).set({...resource, id: id})).
+      pipe(
+        switchMap( () =>  this.resourceCollection.doc(localId).valueChanges()),
+        catchError( (error) => throwError(error))
+      );
   }
 
   updateFb(resource: T){
@@ -42,6 +49,13 @@ export abstract class BaseResourceService<T extends BaseResourceModel>{
 
   deleteFb(id: string){
     return this.resourceCollection.doc(id).delete();
+  }
+
+  login(email: string, password: string): Observable<T>{
+    return null;
+  }
+
+  logout(){
   }
 
   //metodos protegidos compartilhados pela herança

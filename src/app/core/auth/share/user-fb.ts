@@ -2,7 +2,7 @@ export class UserFb {
     firstName: string;
     lastName: string;
     email: string;
-    passwoard: string;
+    password: string;
     id?: string;
 
     static fromJson(jsonData: any): UserFb{

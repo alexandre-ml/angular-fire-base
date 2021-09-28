@@ -7,6 +7,7 @@ import { BaseResourceService } from "../../services/base-resource.service";
 
 import { switchMap } from "rxjs/operators";
 import toastr from "toastr";
+import { Observable } from 'rxjs';
 
 @Directive()
 export abstract class BaseResourceFormComponent<T extends BaseResourceModel> implements OnInit, AfterContentChecked {
@@ -45,15 +46,24 @@ export abstract class BaseResourceFormComponent<T extends BaseResourceModel> imp
   submitForm(){
     this.submittingForm = true;
 
-    if(this.currentAction == 'new')
+    if(this.currentAction == 'new' || this.currentAction == 'register')
       this.createResource();
-    else
+    else if(this.currentAction == 'edit')
       this.updateResource();
+    else 
+      this.resourceService.login(this.resourceForm.value.email, this.resourceForm.value.password)
+      .subscribe(
+        r => this.actionsForSuccess(r),
+        error => this.actionsForError(error)
+      );
   }
   
   //metodos compartilhados entre as heranças
   protected setCurrentAction() {
-    this.currentAction = this.route.snapshot.url[0].path == 'new' ? 'new' : 'edit';
+    if(this.route.snapshot.parent.url[0].path == 'auth')
+      this.currentAction = this.route.snapshot.url[0].path;
+    else
+      this.currentAction = this.route.snapshot.url[0].path == 'new' ? 'new' : 'edit';
   }
 
   protected loadResource() {
@@ -89,13 +99,12 @@ export abstract class BaseResourceFormComponent<T extends BaseResourceModel> imp
     const resource: T = this.jsonDataToResourceFn(this.resourceForm.value);
 
     this.resourceService.createFb(resource)
-    .then(
+    .subscribe(
       (r) => {
-        this.actionsForSuccess(resource)
-      }      
-    )
-    .catch(
-      (error) => this.actionsForError(error)
+        console.log(r);
+        this.actionsForSuccess(r);
+      },
+      error => this.actionsForError(error)
     )
   }
   
@@ -114,27 +123,27 @@ export abstract class BaseResourceFormComponent<T extends BaseResourceModel> imp
   protected actionsForSuccess(resource: T): void {
     toastr.success("Solicitação processada com sucesso");
 
-    const url = this.route.snapshot.parent.url[0].path;
+    let url = this.route.snapshot.parent.url[0].path;
 
-    //console.log(`${url}/${resource.id}/edit`);
+    if(url == 'auth')
+      url = '/';
 
-    //redireciona para a pagina de ediçao para garantir um novo carregamento e limpeza das variaveis
-    //this.router.navigateByUrl(url, {skipLocationChange: true}).then(
-    //  () => this.router.navigate([url, resource.id, 'edit'])
-    //)
-    this.router.navigateByUrl(`${url}`, {skipLocationChange: true});
+    this.router.navigateByUrl(`${url}`);
   }
 
   protected actionsForError(error: any): void {
-    toastr.error('Ocorreu um erro ao processar a sua requisição!');
+    toastr.error(error);
 
     this.submittingForm = false;
 
     //utilizado para servidor remoto
-    if(error.status === 422)
-      this.serverErrorMessages = JSON.parse(error._body).errors;
-    else
-      this.serverErrorMessages = ['Falha na comunicação com o servidor. Por favor tente mais tarde!'];
+    if(error.status)
+    {
+      if(error.status === 422)
+        this.serverErrorMessages = JSON.parse(error._body).errors;
+      else 
+        this.serverErrorMessages = ['Falha na comunicação com o servidor. Por favor tente mais tarde!'];
+    }
   }
     
   protected abstract buildResourceForm(): void;  

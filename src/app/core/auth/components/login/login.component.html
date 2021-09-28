@@ -1,1 +1,59 @@
-<p>login works!</p>
+<app-bread-crumb [items]="[{ text: 'Login' }]"></app-bread-crumb>
+
+<app-page-header
+  page-title="Login"
+  [show-button]="false"
+  button-link="/auth/login"
+></app-page-header>
+
+<form [formGroup]="resourceForm" (submit)="submitForm()">
+  <div class="card">
+    <div class="card-header">Login</div>
+
+    <div class="card-body">
+      <div class="form-row">
+        <div class="form-group col-md-12">
+          <label for="email">E-mail</label>
+          <input
+            type="text"
+            class="form-control"
+            id="email"
+            formControlName="email"
+          />
+
+          <app-form-field-error
+            [form-control]="resourceForm.get('email')"
+          ></app-form-field-error>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group col-md-12">
+          <label for="password">Senha</label>
+          <input
+            type="password"
+            class="form-control"
+            id="password"
+            formControlName="password"
+          />
+        </div>
+
+        <app-form-field-error
+          [form-control]="resourceForm.get('password')"
+        ></app-form-field-error>
+      </div>
+    </div>
+  </div>
+
+  <app-server-error-messages
+    [server-error-messages]="serverErrorMessages"
+  ></app-server-error-messages>
+
+  <button
+    [disabled]="submittingForm || resourceForm.invalid"
+    type="submit"
+    class="btn btn-primary btn-lg float-right mt-3"
+  >
+    Entrar
+  </button>
+</form>
