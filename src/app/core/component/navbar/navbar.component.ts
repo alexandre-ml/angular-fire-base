@@ -1,4 +1,4 @@
-import { Component, Injector, OnInit } from '@angular/core';
+import { Component, Injector, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
 import { AuthService } from '../../auth/share/auth.service';
@@ -26,7 +26,6 @@ export class NavbarComponent implements OnInit {
   }
 
   logout(){
-    this.authService.logout();
-    //verificar os toaster em excesso
+    this.authService.logout()
   }
 }
