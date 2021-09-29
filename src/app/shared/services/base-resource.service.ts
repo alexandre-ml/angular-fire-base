@@ -2,7 +2,7 @@ import { BaseResourceModel } from "../models/base-resource.model";
 
 import { Injector } from "@angular/core";
 
-import { from, Observable, throwError } from "rxjs";
+import { from, Observable, of, throwError } from "rxjs";
 
 import { AngularFirestore, AngularFirestoreCollection } from "@angular/fire/compat/firestore";
 import { catchError, map, switchMap, tap } from "rxjs/operators";
@@ -38,7 +38,7 @@ export abstract class BaseResourceService<T extends BaseResourceModel>{
 
     return from(this.resourceCollection.doc<T>(id).set({...resource, id: id})).
       pipe(
-        switchMap( () =>  this.resourceCollection.doc(localId).valueChanges()),
+        switchMap( () =>  this.resourceCollection.doc<T>(id).valueChanges()),
         catchError( (error) => throwError(error))
       );
   }
@@ -52,7 +52,7 @@ export abstract class BaseResourceService<T extends BaseResourceModel>{
   }
 
   login(email: string, password: string): Observable<T>{
-    return null;
+    return of(null);
   }
 
   logout(){

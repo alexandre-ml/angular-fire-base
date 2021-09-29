@@ -15,11 +15,24 @@ export class LoginComponent extends BaseResourceFormComponent<UserFb> {
     super(injector, new UserFb(), authService, UserFb.fromJson)
   }
 
+  ngOnDestroy(){ 
+    if(this.resSubcription)   
+      this.resSubcription.unsubscribe();
+  }
+
+  fazLogin(){
+    this.resSubcription = this.resourceService.login(this.resourceForm.value.email, this.resourceForm.value.password)
+    .subscribe(
+      r => this.actionsForSuccess(r, 'Login realizado com sucesso!'),
+      error => this.actionsForError(error)
+    );
+  }
+
   protected buildResourceForm() {
     this.resourceForm = this.formBuilder.group({
       id: [null],
       email: [null, [Validators.required, Validators.email]],
       password: [null, [Validators.required, Validators.minLength(6)]]
     });
-  }
+  }  
 }

@@ -1,5 +1,5 @@
-import { OnInit, AfterContentChecked, Injector, Directive } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from "@angular/forms";
+import { OnInit, AfterContentChecked, Injector, Directive, OnDestroy } from '@angular/core';
+import { FormBuilder, FormGroup } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 
 import { BaseResourceModel } from "../../models/base-resource.model";
@@ -7,10 +7,10 @@ import { BaseResourceService } from "../../services/base-resource.service";
 
 import { switchMap } from "rxjs/operators";
 import toastr from "toastr";
-import { Observable } from 'rxjs';
+import { Subscription } from 'rxjs';
 
 @Directive()
-export abstract class BaseResourceFormComponent<T extends BaseResourceModel> implements OnInit, AfterContentChecked {
+export abstract class BaseResourceFormComponent<T extends BaseResourceModel> implements OnInit, AfterContentChecked, OnDestroy {
 
   currentAction: string;
   resourceForm: FormGroup;
@@ -21,6 +21,8 @@ export abstract class BaseResourceFormComponent<T extends BaseResourceModel> imp
   protected route: ActivatedRoute;
   protected router: Router;
   protected formBuilder: FormBuilder;
+
+  protected resSubcription: Subscription = null;
 
   constructor(
       protected injector: Injector, 
@@ -42,6 +44,11 @@ export abstract class BaseResourceFormComponent<T extends BaseResourceModel> imp
   ngAfterContentChecked(){
     this.setPageTitle();
   }
+
+  ngOnDestroy(){
+    if(this.resSubcription)
+      this.resSubcription.unsubscribe();    
+  }
   
   submitForm(){
     this.submittingForm = true;
@@ -49,13 +56,7 @@ export abstract class BaseResourceFormComponent<T extends BaseResourceModel> imp
     if(this.currentAction == 'new' || this.currentAction == 'register')
       this.createResource();
     else if(this.currentAction == 'edit')
-      this.updateResource();
-    else 
-      this.resourceService.login(this.resourceForm.value.email, this.resourceForm.value.password)
-      .subscribe(
-        r => this.actionsForSuccess(r),
-        error => this.actionsForError(error)
-      );
+      this.updateResource();    
   }
   
   //metodos compartilhados entre as heranças
@@ -68,7 +69,7 @@ export abstract class BaseResourceFormComponent<T extends BaseResourceModel> imp
 
   protected loadResource() {
     if(this.currentAction == 'edit'){
-      this.route.paramMap.pipe(
+      this.resSubcription = this.route.paramMap.pipe(
         switchMap(params => this.resourceService.getByIdFb(params.get('id')))
       )
       .subscribe(
@@ -77,14 +78,13 @@ export abstract class BaseResourceFormComponent<T extends BaseResourceModel> imp
           this.resourceForm.patchValue(resource) // carrega o form com a categoria do banco
         },
         (error) => alert('Ocorreu um erro no servidor, tente mais tarde!')
-      )
+      );
     }
     
   }
   
   protected setPageTitle() {
     this.pageTitle = this.currentAction == 'new' ? this.setTitleNew() : this.setTitleEdit();
-
   }
 
   protected setTitleNew(): string {
@@ -98,11 +98,10 @@ export abstract class BaseResourceFormComponent<T extends BaseResourceModel> imp
   protected createResource() {
     const resource: T = this.jsonDataToResourceFn(this.resourceForm.value);
 
-    this.resourceService.createFb(resource)
+    this.resSubcription = this.resourceService.createFb(resource)
     .subscribe(
       (r) => {
-        console.log(r);
-        this.actionsForSuccess(r);
+        this.actionsForSuccess(r, 'Registro Incluído com Sucesso!');
       },
       error => this.actionsForError(error)
     )
@@ -113,21 +112,22 @@ export abstract class BaseResourceFormComponent<T extends BaseResourceModel> imp
 
     this.resourceService.updateFb(resource)
     .then(
-      () => {this.actionsForSuccess(resource)}      
+      () => {this.actionsForSuccess(resource, 'Registro Atualizado com Sucesso!')}      
     )
     .catch(
       (error) => this.actionsForError(error)
     )
   }  
 
-  protected actionsForSuccess(resource: T): void {
-    toastr.success("Solicitação processada com sucesso");
+  protected actionsForSuccess(resource: T, msg: string): void {
+    toastr.success(msg);
 
     let url = this.route.snapshot.parent.url[0].path;
 
     if(url == 'auth')
       url = '/';
-
+    
+   
     this.router.navigateByUrl(`${url}`);
   }
 

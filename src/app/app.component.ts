@@ -1,4 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, Injector } from '@angular/core';
+import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
+import { AuthService } from './core/auth/share/auth.service';
+
+import { UserFb } from './core/auth/share/user-fb';
 
 @Component({
   selector: 'app-root',
@@ -6,5 +11,5 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'finansys';
+  title = 'finansys';  
 }
