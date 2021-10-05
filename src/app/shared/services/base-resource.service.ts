@@ -28,7 +28,7 @@ export abstract class BaseResourceService<T extends BaseResourceModel>{
   }
 
   getByIdFb(id: string): Observable<T>{
-    return this.resourceCollection.doc(id).valueChanges();
+    return this.resourceCollection.doc<T>(id).valueChanges();
   }
 
   createFb(resource: T, localId?: string): Observable<T> {

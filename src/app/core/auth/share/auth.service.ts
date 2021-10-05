@@ -41,11 +41,12 @@ export class AuthService extends BaseResourceService<UserFb> {
   }
 
   login(email: string, password: string): Observable<UserFb>{
-    return from(this.afAuth.signInWithEmailAndPassword(email, password))
-      .pipe(
-        switchMap( (u) => this.resourceCollection.doc<UserFb>(u.user.uid).valueChanges()),
-        catchError( () => throwError('Usuário e/ou Senha inválidos ou não Cadastrado!'))
-      );
+    return from(this.afAuth.setPersistence('session')
+      .then( () => this.afAuth.signInWithEmailAndPassword(email, password)))
+        .pipe(
+          switchMap ( (u) => this.resourceCollection.doc<UserFb>(u.user.uid).valueChanges()),
+          catchError( () => throwError('Usuário e/ou Senha inválidos ou não Cadastrado!'))
+        );
   }
 
   logout(){
