@@ -33,19 +33,6 @@ export class EntryService extends BaseResourceService<Entry> {
     )
   }
 
-  getNameCategory(id: string): string {
-    let ret: string;
-/*
-    let teste = this.categoryService.getByIdFb(id).subscribe(
-      (c) => {ret = c.name}
-    )
-    teste.unsubscribe();
-*/
-    ret = id + 'veio da classe';
-    
-    return ret;     
-  }
-
   private setCategoryAndSendToServer(entry: Entry, sendFn: any): Observable<Entry>{
     return sendFn(entry); 
   }  

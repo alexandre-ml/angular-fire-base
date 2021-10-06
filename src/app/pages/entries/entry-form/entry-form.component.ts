@@ -54,13 +54,9 @@ export class EntryFormComponent extends BaseResourceFormComponent<Entry> impleme
   }
   
   get typeOptions(): Array<any>{
-    return Object.entries(Entry.types).map(
-      ([value, text]) => {
-        return {
-          text: text,
-          value: value
-        }
-      }
+    return Object.entries(Entry.types)
+    .map(
+      ([v, t]) => { return {text: t, value: v} }
     );
   } 
 

@@ -24,10 +24,13 @@
             formControlName="type"
             class="form-control"
           >
+            <option value="expense">Despesa</option>
+            <option value="revenue">Receita</option>
+            <!--
             <option *ngFor="let option of typeOptions" [value]="option.value">
               {{ option.text }}
             </option>
-          </select>
+          --></select>
 
           <app-form-field-error
             [form-control]="resourceForm.get('type')"
